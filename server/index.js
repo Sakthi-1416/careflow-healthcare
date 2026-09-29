@@ -21,17 +21,18 @@ app.put('/api/demo-state', async (req, res) => { if (!req.body?.state || typeof 
 const safeUser = u => ({ id: u._id, fullName: u.fullName, email: u.email, role: u.role, age: u.age, bloodGroup: u.bloodGroup, allergies: u.allergies, chronicConditions: u.chronicConditions });
 const token = u => jwt.sign({ sub: u._id.toString(), role: u.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 const auth = (...roles) => async (req,res,next) => { try { const raw=req.headers.authorization?.replace('Bearer ',''); const payload=jwt.verify(raw,process.env.JWT_SECRET); req.user=await User.findById(payload.sub); if(!req.user || (roles.length && !roles.includes(req.user.role))) return res.status(403).json({error:'Permission denied'}); next(); } catch { res.status(401).json({error:'Authentication required'}); } };
+const offlineReportAnalysis = reportText => ({ summary: 'Basic offline summary: the report text was saved for clinical review. Gemini analysis is temporarily unavailable.', extractedItems: reportText.split(/\n|,/).map(item=>item.trim()).filter(Boolean).slice(0,6).map(item=>({name:'Report item',displayedValue:item})), questionsForClinician: ['Which results should I discuss with my clinician?', 'Are any follow-up tests or visits needed?'], safetyNote: 'This offline summary is informational only. Please review the report with a qualified clinician.' });
+const localAiFallback = (instruction, input) => instruction.includes('healthcare navigation assistant') ? recommendSpecialty(input) : offlineReportAnalysis(input);
 const geminiJson = async (instruction, input) => {
   if (!process.env.GEMINI_API_KEY) {
-    if (instruction.includes('healthcare navigation assistant')) return recommendSpecialty(input);
-    throw new Error('Gemini is not configured');
+    return localAiFallback(instruction, input);
   }
   const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ systemInstruction: { parts: [{ text: instruction }] }, contents: [{ role: 'user', parts: [{ text: input }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.2 } }),
   });
-  if (!response.ok) throw new Error(`Gemini request failed (${response.status})`);
+  if (!response.ok) return localAiFallback(instruction, input);
   const body = await response.json();
   const text = body.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '{}';
   return JSON.parse(text);
