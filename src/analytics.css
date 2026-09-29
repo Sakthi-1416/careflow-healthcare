@@ -1,0 +1,10 @@
+.analytics-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:20px}
+.chart-canvas{height:280px;position:relative;margin-top:12px}
+.plain-link{display:block;width:100%;margin:12px 0 0;border:0;background:transparent;color:#087b74;font-size:13px;font-weight:700}
+.inline-form{display:flex;gap:10px;align-items:center;margin-top:16px}
+.inline-form input{flex:1;min-width:0;border:1px solid #dbe5eb;border-radius:8px;padding:11px 12px;background:white}
+.inline-form .primary{white-space:nowrap}
+.reset-button{display:none}
+.profile .form-page{margin:24px auto 0;text-align:left;display:grid;gap:13px}.profile .form-page label{display:grid;gap:6px;color:#52667d;font-size:13px;font-weight:700}.profile .form-page input{width:100%;border:1px solid #dbe5eb;border-radius:8px;padding:11px 12px;background:#fff;color:#102a43}.profile .form-page .primary{justify-self:start;margin-top:5px}.profile .profile-save-note{margin:0;color:#0b786e;font-size:13px;font-weight:700}.profile .profile-error{margin:0;color:#c3414f;font-size:13px;font-weight:700}
+.medicine-manager{display:grid;gap:10px}.medicine-card{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px;border:1px solid #dbe5eb;border-radius:12px;background:#fff}.medicine-card>div{display:grid;gap:5px}.medicine-card b{display:flex;align-items:center;gap:7px;color:#17324d}.medicine-card small,.medicine-card span{color:#63778d;font-size:13px}.stop-medicine{display:inline-flex;align-items:center;gap:7px;border:1px solid #e7a4ab;background:#fff4f5;color:#b42332;border-radius:8px;padding:9px 11px;font-weight:800;white-space:nowrap}.stop-medicine:hover{background:#fde6e8}
+@media(max-width:800px){.analytics-grid{grid-template-columns:1fr}.chart-canvas{height:250px}.inline-form{align-items:stretch;flex-wrap:wrap}.inline-form input{min-width:180px}}

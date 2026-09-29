@@ -1,0 +1,24 @@
+import mongoose from 'mongoose';
+const { Schema, model } = mongoose;
+
+const userSchema = new Schema({
+  fullName: { type: String, required: true }, email: { type: String, required: true, unique: true, lowercase: true },
+  passwordHash: { type: String, required: true }, role: { type: String, enum: ['patient','doctor','admin'], required: true },
+  age: Number, bloodGroup: String, allergies: String, chronicConditions: String,
+  passwordResetCodeHash: String, passwordResetExpiresAt: Date,
+}, { timestamps: true });
+const doctorSchema = new Schema({ user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true }, specialty: String, experienceYears: Number, fee: Number, approved: { type: Boolean, default: false } }, { timestamps: true });
+const slotSchema = new Schema({ doctor: { type: Schema.Types.ObjectId, ref: 'User', required: true }, startsAt: { type: Date, required: true }, durationMinutes: { type: Number, default: 20 }, booked: { type: Boolean, default: false }, unavailable: { type: Boolean, default: false } }, { timestamps: true });
+slotSchema.index({ doctor: 1, startsAt: 1 }, { unique: true });
+const appointmentSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, doctor: { type: Schema.Types.ObjectId, ref: 'User', required: true }, slot: { type: Schema.Types.ObjectId, ref: 'Slot', required: true }, status: { type: String, default: 'confirmed' }, emergency: { type: Boolean, default: false }, queuePosition: Number, predictedWaitMinutes: Number, consultationDurationMinutes: Number }, { timestamps: true });
+const recordSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, doctor: { type: Schema.Types.ObjectId, ref: 'User' }, category: { type: String, enum: ['encounter','prescription','lab_report'], required: true }, title: String, content: String, attachmentUrl: String }, { timestamps: true });
+const reminderSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, prescription: { type: Schema.Types.ObjectId, ref: 'Prescription' }, medicine: String, dose: String, reminderTime: String, active: { type: Boolean, default: true } }, { timestamps: true });
+const leaveSchema = new Schema({ doctor: { type: Schema.Types.ObjectId, ref: 'User', required: true }, date: { type: String, required: true }, reason: String }, { timestamps: true });
+leaveSchema.index({ doctor: 1, date: 1 }, { unique: true });
+const departmentSchema = new Schema({ name: { type: String, required: true, unique: true }, description: String, active: { type: Boolean, default: true } }, { timestamps: true });
+const prescriptionSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, doctor: { type: Schema.Types.ObjectId, ref: 'User', required: true }, appointment: { type: Schema.Types.ObjectId, ref: 'Appointment' }, medicines: [{ name: String, dose: String, schedule: String, durationDays: Number }], notes: String }, { timestamps: true });
+const symptomAssessmentSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, symptoms: String, recommendedSpecialty: String, message: String, provider: { type: String, default: 'openai' } }, { timestamps: true });
+const notificationSchema = new Schema({ user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, title: String, body: String, type: { type: String, default: 'general' }, read: { type: Boolean, default: false } }, { timestamps: true });
+const disputeSchema = new Schema({ patient: { type: Schema.Types.ObjectId, ref: 'User', required: true }, appointment: { type: Schema.Types.ObjectId, ref: 'Appointment' }, title: { type: String, required: true }, description: String, status: { type: String, enum: ['open','in_review','resolved','rejected'], default: 'open' }, resolutionNote: String }, { timestamps: true });
+const demoStateSchema = new Schema({ key: { type: String, unique: true, required: true }, state: { type: Schema.Types.Mixed, required: true } }, { timestamps: true });
+export const User = model('User', userSchema); export const DoctorProfile = model('DoctorProfile', doctorSchema); export const Slot = model('Slot', slotSchema); export const Appointment = model('Appointment', appointmentSchema); export const HealthRecord = model('HealthRecord', recordSchema); export const Reminder = model('Reminder', reminderSchema); export const Leave = model('Leave', leaveSchema); export const Department = model('Department', departmentSchema); export const Prescription = model('Prescription', prescriptionSchema); export const SymptomAssessment = model('SymptomAssessment', symptomAssessmentSchema); export const Notification = model('Notification', notificationSchema); export const Dispute = model('Dispute', disputeSchema); export const DemoState = model('DemoState', demoStateSchema);

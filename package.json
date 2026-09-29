@@ -1,0 +1,30 @@
+{
+  "name": "careflow-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "seed": "node server/seed.js",
+    "migrate:demo-state": "node server/migrate-demo-state.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "bcryptjs": "latest",
+    "chart.js": "^4.5.1",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "lucide-react": "latest",
+    "mongoose": "latest",
+    "multer": "^2.2.0",
+    "react": "latest",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "latest",
+    "vite": "latest"
+  }
+}

@@ -1,0 +1,11 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: careflow-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - careflow_mongo_data:/data/db
+
+volumes:
+  careflow_mongo_data:
