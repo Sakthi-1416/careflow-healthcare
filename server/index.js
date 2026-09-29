@@ -7,9 +7,10 @@ import { recommendSpecialty } from './symptom-model.js';
 // Atlas uses DNS SRV records. A public resolver avoids local DNS policies that block SRV lookups.
 dns.setServers((process.env.DNS_SERVERS || '1.1.1.1,8.8.8.8').split(','));
 const app = express(), port = process.env.PORT || 8000;
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173,http://127.0.0.1:5173').split(',').map(origin => origin.trim()).filter(Boolean);
 if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) throw new Error('Create .env from .env.example and set MONGODB_URI and JWT_SECRET.');
 await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 8000, family: 4 }); console.log('MongoDB connected');
-app.use(cors({ origin: 'http://localhost:5173' })); app.use(express.json());
+app.use(cors({ origin(origin, done) { if (!origin || allowedOrigins.includes(origin)) return done(null, true); return done(new Error('Origin not allowed by CORS')); } })); app.use(express.json());
 const uploadDir=path.resolve('uploads');fs.mkdirSync(uploadDir,{recursive:true});const upload=multer({storage:multer.diskStorage({destination:uploadDir,filename:(_req,file,done)=>done(null,`${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g,'_')}`)}),limits:{fileSize:5*1024*1024},fileFilter:(_req,file,done)=>done(null,['application/pdf','image/jpeg','image/png'].includes(file.mimetype))});app.use('/uploads',express.static(uploadDir));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', database: mongoose.connection.name }));
 app.get('/api', (_req, res) => res.json({ name: 'CareFlow API', status: 'running', health: '/api/health' }));
